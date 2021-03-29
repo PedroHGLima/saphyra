@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='saphyra',
-    version='3.1.0',
+    version='3.1.1',
     license='GPL-3.0',
     description='',
     long_description=long_description,
