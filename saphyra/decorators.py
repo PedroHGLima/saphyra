@@ -53,8 +53,8 @@ class Summary( Logger ):
 
     MSG_INFO( self, "Starting the train summary..." )
 
-    y_pred = model.predict( x_train )
-    y_pred_val = model.predict( x_val )
+    y_pred = model.predict( x_train, batch_size = 1024, verbose=0 )
+    y_pred_val = model.predict( x_val, batch_size = 1024, verbose=0 )
 
     # get vectors for operation mode (train+val)
     y_pred_operation = np.concatenate( (y_pred, y_pred_val), axis=0)
