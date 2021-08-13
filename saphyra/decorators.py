@@ -61,7 +61,7 @@ class Summary( Logger ):
     y_operation = np.concatenate((y_train,y_val), axis=0)
 
     d['rocs'] = {}
-
+    d['hists'] = {}
 
     # No threshold is needed
     d['auc'] = roc_auc_score(y_train, y_pred)
@@ -88,6 +88,8 @@ class Summary( Logger ):
     d['rocs']['roc'] = (pd, fa)
     #d['rocs']['predictions'] = (y_pred, y_train)
 
+    d['hists']['trn_sgn'] = np.histogram(y_pred[y_train == 1], bins=70)
+    d['hists']['trn_bkg'] = np.histogram(y_pred[y_train != 1], bins=70)
 
     MSG_INFO( self, "Train samples     : Prob. det (%1.4f), False Alarm (%1.4f), SP (%1.4f), AUC (%1.4f) and MSE (%1.4f)",
         pd[knee], fa[knee], sp[knee], d['auc'], d['mse'])
@@ -106,6 +108,9 @@ class Summary( Logger ):
 
     d['rocs']['roc_val'] = (pd, fa)
     #d['rocs']['predictions_val'] = (y_pred_val, y_val)
+
+    d['hists']['val_sgn'] = np.histogram(y_pred_val[y_val == 1], bins=70)
+    d['hists']['val_bkg'] = np.histogram(y_pred_val[y_val != 1], bins=70)
 
     MSG_INFO( self, "Validation Samples: Prob. det (%1.4f), False Alarm (%1.4f), SP (%1.4f), AUC (%1.4f) and MSE (%1.4f)",
         pd[knee], fa[knee], sp[knee], d['auc_val'], d['mse_val'])
@@ -126,6 +131,9 @@ class Summary( Logger ):
     # We dont need to attach y_op and y_pred_op since the user can concatenate train and val to get this. Just to save storage.
     #d['rocs']['predictions_op'] = (y_pred_operation, y_operations)
     
+    d['hists']['op_sgn'] = np.histogram(y_pred_operation[y_operation == 1], bins=70)
+    d['hists']['op_bkg'] = np.histogram(y_pred_operation[y_operation != 1], bins=70)
+
     MSG_INFO( self, "Operation Samples : Prob. det (%1.4f), False Alarm (%1.4f), SP (%1.4f), AUC (%1.4f) and MSE (%1.4f)",
         pd[knee], fa[knee], sp[knee], d['auc_val'], d['mse_val'])
 
