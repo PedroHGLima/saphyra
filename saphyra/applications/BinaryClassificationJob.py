@@ -191,12 +191,6 @@ class BinaryClassificationJob( Logger ):
           MSG_INFO( self, "Train Samples      :  (%d, %d)", len(y_train[y_train==1]), len(y_train[y_train!=1]))
           MSG_INFO( self, "Validation Samples :  (%d, %d)", len(y_val[y_val==1]),len(y_val[y_val!=1]))
 
-          self.__context.setHandler( "model"   , model_for_this_init     )
-          self.__context.setHandler( "sort"    , sort                    )
-          self.__context.setHandler( "init"    , init                    )
-          self.__context.setHandler( "imodel"  , self.__id_models[imodel])
-
-
 
           callbacks = deepcopy(self.callbacks)
           for callback in callbacks:
@@ -234,6 +228,12 @@ class BinaryClassificationJob( Logger ):
                               shuffle         = True).history
 
           end = datetime.now()
+
+          # be sure that model is already trained
+          self.__context.setHandler( "model"   , model_for_this_init     )
+          self.__context.setHandler( "sort"    , sort                    )
+          self.__context.setHandler( "init"    , init                    )
+          self.__context.setHandler( "imodel"  , self.__id_models[imodel])
 
           self.__context.setHandler("time" , end-start)
 
