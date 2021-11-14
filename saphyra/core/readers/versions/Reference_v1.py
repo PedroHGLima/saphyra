@@ -1,82 +1,92 @@
-
 __all__ = ['Reference_v1']
 
 
-from sklearn.model_selection import *
-from Gaugi import LoggerStreamable, LoggerRawDictStreamer, RawDictCnv, NotSet
-from tensorflow.keras.models import model_from_json
-import json
+from Gaugi import save
+import collections
 
 
+class Reference_v1( object ):
 
 
-
-class Reference_v1( LoggerStreamable ):
-
-
-  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_sgnRef', '_bkgRef', '_etBins', '_etaBins', '_etBinIdx', '_etaBinIdx'})
-  _cnvObj = RawDictCnv(toProtectedAttrs = {'_sgnRef', '_bkgRef', '_etBins', '_etaBins', '_etBinIdx', '_etaBinIdx'})
+  
   __version =  1
 
 
-  def __init__( self, **kw ):
+  def __init__( self ):
 
-    LoggerStreamable.__init__(self, **kw)
-    import collections
-    self._sgnRef = collections.OrderedDict()
-    self._bkgRef = collections.OrderedDict()
-    self._etBins = NotSet
-    self._etaBins = NotSet
-    self._etBinIdx = NotSet
-    self._etaBinIdx = NotSet
+    self.__sgnRef = collections.OrderedDict()
+    self.__bkgRef = collections.OrderedDict()
+    self.__etBins = None
+    self.__etaBins = None
+    self.__etBinIdx = None
+    self.__etaBinIdx = None
 
 
   def setEtBins(self, etBins ):
-    self._etBins = etBins
+    self.__etBins = etBins
 
   def setEtaBins( self, etaBins ):
-    self._etaBins = etaBins
+    self.__etaBins = etaBins
 
 
   def setEtBinIdx(self, etBinIdx ):
-    self._etBinIdx = etBinIdx
+    self.__etBinIdx = etBinIdx
 
   def setEtaBinIdx(self, etaBinIdx ):
-    self._etaBinIdx = etaBinIdx
+    self.__etaBinIdx = etaBinIdx
 
 
   def getEtBiinIdx(self):
-    return self._etBinIdx
+    return self.__etBinIdx
 
   def getEtaBiinIdx(self):
-    return self._etaBinIdx
+    return self.__etaBinIdx
 
 
   def addSgn( self, reference, branch, passed, total):
-    self._sgnRef[ reference ] = {'passed':passed, 'total':total, 'reference': branch}
+    self.__sgnRef[ reference ] = {'passed':passed, 'total':total, 'reference': branch}
 
   def addBkg( self, reference, branch, passed, total):
-    self._bkgRef[ reference ] = {'passed':passed, 'total':total, 'reference': branch}
+    self.__bkgRef[ reference ] = {'passed':passed, 'total':total, 'reference': branch}
 
 
   def getSgnPassed(self, reference):
-    return self._sgnRef[reference]['passed']
+    return self.__sgnRef[reference]['passed']
 
   def getSgnTotal(self, reference):
-    return self._sgnRef[reference]['total']
+    return self.__sgnRef[reference]['total']
 
 
   def getBkgPassed(self, reference):
-    return self._bkgRef[reference]['passed']
+    return self.__bkgRef[reference]['passed']
 
   def getBkgTotal(self, reference):
-    return self._bkgRef[reference]['total']
+    return self.__bkgRef[reference]['total']
 
+
+  def toRawObj(self):
+    return { 
+          'sgnRef'    : self.__sgnRef,
+          'bkgRef'    : self.__bkgRef,
+          'etBins'    : self.__etBins,
+          'etaBins'   : self.__etaBins,
+          'etBinIdx'  : self.__etBinIdx,
+          'etaBinIdx' : self.__etaBinIdx,
+          '__version' : self.__version
+          }
+
+  def fromRawObj( self, d):
+    self.__bkgRef = d['bkgRef']
+    self.__sgnRef = d['sgnRef']
+    self.__etBins = d['etBins']
+    self.__etaBins= d['etaBins']
+    self.__etaBinIdx = d['etaBinIdx']
+    self.__etBinIdx = d['etBinIdx']
+    return self
 
 
   def save(self, ofile):
     d = self.toRawObj()
-    from Gaugi import save
     save( d, ofile, compress=True)
 
 

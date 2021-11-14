@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow.keras.models import clone_model, Model, model_from_json
 from tensorflow.keras import layers
 from saphyra.core import TunedDataReader
-from Gaugi.messenger.macros import *
+from Gaugi.macros import *
 from Gaugi import Logger
 import json
 

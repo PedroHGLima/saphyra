@@ -4,75 +4,68 @@ __all__ = ['Job_v1']
 
 
 from sklearn.model_selection import *
-from Gaugi import LoggerStreamable, LoggerRawDictStreamer, RawDictCnv
-
+from Gaugi import save
 from saphyra.layers.RpLayer import RpLayer
 # Just to remove the keras dependence
 import tensorflow as tf
 model_from_json = tf.keras.models.model_from_json
-
 import json
 
 
+class Job_v1( object ):
 
-
-class Job_v1( LoggerStreamable ):
-
-  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_metadata','_id' , '_sorts', '_inits', '_models'})
-  _cnvObj = RawDictCnv(toProtectedAttrs = {'_metadata','_id', '_sorts', '_inits', '_models'})
 
   __version =  1
 
-  def __init__( self, **kw ):
-    LoggerStreamable.__init__(self, kw)
-    self._sorts  = []
-    self._inits  = []
-    self._models = []
-    self._id     = None
-    self._metadata = None
+  def __init__( self ):
+    self.__sorts  = []
+    self.__inits  = []
+    self.__models = []
+    self.__id     = None
+    self.__metadata = None
 
   def setSorts(self, v):
     if type(v) is int:
-      self._sorts = [v]
+      self.__sorts = [v]
     else:
-      self._sorts = v
+      self.__sorts = v
 
 
   def setInits(self, v):
     if type(v) is int:
-      self._inits = range(v)
+      self.__inits = range(v)
     else:
-      self._inits = v
+      self.__inits = v
 
 
   def getSorts(self):
-    return self._sorts
+    return self.__sorts
 
 
   def getInits(self):
-    return self._inits
+    return self.__inits
 
 
   def setMetadata( self, d):
-    self._metadata = d
+    self.__metadata = d
 
 
   def getMetadata(self):
-    return self._metadata
+    return self.__metadata
 
 
   def setModels(self, models, id_models):
-    self._models = list()
+    self.__models = list()
     if type(models) is not list:
       models=[models]
     for idx, model in enumerate(models):
-      self._models.append( {'model':  json.loads(model.to_json()), 'weights': model.get_weights() , 'id_model': id_models[idx]} )
+      self.__models.append( {'model':  json.loads(model.to_json()), 'weights': model.get_weights() , 'id_model': id_models[idx]} )
 
 
   def getModels(self):
     # Loop over all keras model
     models = []; id_models = []
-    for d in self._models:
+    for d in self.__models:
       model = model_from_json( json.dumps(d['model'], separators=(',', ':')) , custom_objects={'RpLayer':RpLayer} )
       model.set_weights( d['weights'] )
       models.append( model )
@@ -81,22 +74,35 @@ class Job_v1( LoggerStreamable ):
 
 
   def setId( self, id ):
-    self._id = id
+    self.__id = id
 
 
   def id(self):
-    return self._id
+    return self.__id
 
+
+  def toRawObj(self):
+    return {
+              'metadata' : self.__metadata,
+              'id'       : self.__id,
+              'sorts'    : self.__sorts,
+              'inits'    : self.__inits,
+              'models'   : self.__models,
+              '__version': self.__version
+    }
+
+  def fromRawObj(self, d):
+    self.__metadata = d['metadata']
+    self.__id = d['id']
+    self.__sorts = d['sorts']
+    self.__inits = d['inits']
+    self.__modeld = d['models']
+    return self
 
   def save(self, fname):
     d = self.toRawObj()
-    d['__version'] = self.__version
-    from Gaugi import save
     save( d, fname, compress=True)
 
 
  
-
-
-
 

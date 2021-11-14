@@ -1,9 +1,10 @@
 
+
 __all__ = ['TunedData_v1']
 
 
+from Gaugi import save
 from sklearn.model_selection import *
-from Gaugi import LoggerStreamable, LoggerRawDictStreamer, RawDictCnv
 from tensorflow.keras.models import model_from_json
 import json
 
@@ -11,26 +12,18 @@ import json
 
 
 
-class TunedData_v1( LoggerStreamable ):
+class TunedData_v1( object ):
 
-
-  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_tunedData', '_jobid', '_taskname', '_username'})
-  _cnvObj = RawDictCnv(toProtectedAttrs = {'_tunedData', '_jobid', '_taskname', '_username'})
   __version =  1
 
+  def __init__( self):
 
-  def __init__( self, **kw ):
-
-    LoggerStreamable.__init__(self, **kw)
-    self._tunedData = []
-    self._username  = None
-    self._taskname  = None
-    self._jobid     = None
+    self.__tunedData = []
 
 
   def attach( self, id_model, sort, init, tag, model, history, metadata={} ):
 
-    self._tunedData.append({'imodel'   : id_model,
+    self.__tunedData.append({'imodel'   : id_model,
                             'sort'     : sort,
                             'init'     : init,
                             'history'  : history,
@@ -42,7 +35,7 @@ class TunedData_v1( LoggerStreamable ):
 
 
   def attach_ctx( self, context ,  metadata={}):
-    self._tunedData.append({'imodel'   : context.getHandler("imodel"),
+    self.__tunedData.append({'imodel'   : context.getHandler("imodel"),
                             'sort'     : context.getHandler("sort"),
                             'init'     : context.getHandler("init"),
                             'history'  : context.getHandler("history"),
@@ -56,20 +49,24 @@ class TunedData_v1( LoggerStreamable ):
 
 
   def merge( self, obj ):
-    self._tunedData.extend( obj.get_data() )
-
-
-
-
-
+    self.__tunedData.extend( obj.get_data() )
 
   def get_data(self):
-    return self._tunedData
+    return self.__tunedData
 
+
+  def toRawObj(self):
+    return {
+              'tunedData' : self.__tunedData,
+              '__version'  : self.__version
+    }
+
+  def fromRawObj( self, d):
+    self.__tunedData = d['tunedData']
+    return self
 
   def save(self, ofile):
     d = self.toRawObj()
-    from Gaugi import save
     save( d, ofile, compress=True)
 
 

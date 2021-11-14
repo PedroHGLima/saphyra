@@ -2,8 +2,8 @@
 
 __all__ = ["reprocess"]
 
-from Gaugi import Logger, StatusCode, expandFolders, mkdir_p, load, save
-from Gaugi.messenger.macros import *
+from Gaugi import Logger, StatusCode, expand_folders, mkdir_p, load, save
+from Gaugi.macros import *
 
 from pprint import pprint
 

@@ -1,9 +1,9 @@
 
 __all__ = ["create_jobs"]
 
-from Gaugi import retrieve_kw, mkdir_p
-from Gaugi.messenger import Logger
-from Gaugi.messenger.macros import *
+from Gaugi import declareProperty, mkdir_p
+from Gaugi import Logger
+from Gaugi.macros import *
 
 from sklearn.model_selection import KFold
 
@@ -43,15 +43,15 @@ class create_configuration_jobs( Logger ):
 
   def __call__( self, **kw):     
     # Cross validation configuration
-    outputFolder        = retrieve_kw( kw, 'outputFolder' ,       'jobConfig'           )
-    sortBounds          = retrieve_kw( kw, 'sortBounds'   ,             5               )
-    nInits              = retrieve_kw( kw, 'nInits'       ,             10              )
-    nSortsPerJob        = retrieve_kw( kw, 'nSortsPerJob' ,             1               )
-    nInitsPerJob        = retrieve_kw( kw, 'nInitsPerJob' ,             10              ) 
-    nModelsPerJob       = retrieve_kw( kw, 'nModelsPerJob',             1               ) 
-    models              = retrieve_kw( kw, 'models'       ,   [default_model]           )
-    model_tags          = retrieve_kw( kw, 'model_tags'   ,   ['mlp_100_5_1']           )
-    crossval            = retrieve_kw( kw, 'crossval'     , KFold(10,shuffle=True, random_state=512)  )
+    declareProperty( self, kw, 'outputFolder' ,       'jobConfig'           )
+    declareProperty( self, kw, 'sortBounds'   ,             5               )
+    declareProperty( self, kw, 'nInits'       ,             10              )
+    declareProperty( self, kw, 'nSortsPerJob' ,             1               )
+    declareProperty( self, kw, 'nInitsPerJob' ,             10              ) 
+    declareProperty( self, kw, 'nModelsPerJob',             1               ) 
+    declareProperty( self, kw, 'models'       ,   [default_model]           )
+    declareProperty( self, kw, 'model_tags'   ,   ['mlp_100_5_1']           )
+    declareProperty( self, kw, 'crossval'     , KFold(10,shuffle=True, random_state=512)  )
 
     time_stamp = self.time_stamp()    
     # creating the job mechanism file first

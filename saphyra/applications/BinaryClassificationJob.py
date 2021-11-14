@@ -2,9 +2,8 @@
 
 __all__ = ['BinaryClassificationJob', 'lock_as_completed_job', 'lock_as_failed_job']
 
-from Gaugi.messenger import Logger
-from Gaugi.messenger.macros import *
-from Gaugi import StatusCode, checkForUnusedVars, retrieve_kw
+from Gaugi import Logger, StatusCode, declareProperty
+from Gaugi.macros import *
 
 from tensorflow.keras.models import clone_model
 from tensorflow.keras import backend as K
@@ -38,21 +37,22 @@ class BinaryClassificationJob( Logger ):
     self.crossval = crossval
 
 
-    self.optimizer       = retrieve_kw( kw, 'optimizer'      , 'adam'                )
-    self.loss            = retrieve_kw( kw, 'loss'           , 'binary_crossentropy' )
-    self.epochs          = retrieve_kw( kw, 'epochs'         , 1000                  )
-    self.batch_size      = retrieve_kw( kw, 'batch_size'     , 1024                  )
-    self.callbacks       = retrieve_kw( kw, 'callbacks'      , []                    )
-    self.metrics         = retrieve_kw( kw, 'metrics'        , []                    )
-    self.sorts           = retrieve_kw( kw, 'sorts'          , range(1)              )
-    self.inits           = retrieve_kw( kw, 'inits'          , 1                     )
-    job_auto_config      = retrieve_kw( kw, 'job'            , None                  )
-    self.__verbose       = retrieve_kw( kw, 'verbose'        , True                  )
-    self.__class_weight  = retrieve_kw( kw, 'class_weight'   , False                 )
-    self.__save_history  = retrieve_kw( kw, 'save_history'   , True                  )
-    self.decorators      = retrieve_kw( kw, 'decorators'     , []                    )
-    self.plots           = retrieve_kw( kw, 'plots'          , []                    )
-    self.__model_generator=retrieve_kw( kw, 'model_generator', None                  )
+    declareProperty( self, kw, 'optimizer'      , 'adam'                )
+    declareProperty( self, kw, 'loss'           , 'binary_crossentropy' )
+    declareProperty( self, kw, 'epochs'         , 1000                  )
+    declareProperty( self, kw, 'batch_size'     , 1024                  )
+    declareProperty( self, kw, 'callbacks'      , []                    )
+    declareProperty( self, kw, 'metrics'        , []                    )
+    declareProperty( self, kw, 'sorts'          , range(1)              )
+    declareProperty( self, kw, 'inits'          , 1                     )
+    declareProperty( self, kw, 'decorators'     , []                    )
+    declareProperty( self, kw, 'plots'          , []                    )
+    declareProperty( self, kw, 'job_auto_config', None                  )
+    declareProperty( self, kw, 'model_generator', None      , private=True )
+    declareProperty( self, kw, 'verbose'        , True      , private=True )
+    declareProperty( self, kw, 'class_weight'   , False     , private=True )
+    declareProperty( self, kw, 'save_history'   , True      , private=True )
+
 
     # read the job configuration from file
     if job_auto_config:
@@ -70,7 +70,8 @@ class BinaryClassificationJob( Logger ):
 
 
     # get model and tag from model file or lists
-    models = retrieve_kw( kw, 'models', None )
+    declareProperty( self, kw, 'models', None )
+
     if models:
       self.__models = models
       self.__id_models = [id for id in range(len(models))]
@@ -78,20 +79,16 @@ class BinaryClassificationJob( Logger ):
 
 
 
-    self.__outputfile = retrieve_kw( kw, 'outputFile' , None           )
+    declareProperty( self, kw, 'outputFile' , None, private=True )
 
     if self.__outputfile:
       from saphyra.core.readers.versions import TunedData_v1
       self.__tunedData = TunedData_v1()
 
-    checkForUnusedVars(kw)
-
 
     from saphyra import Context
     self.__context = Context()
     self.__index_from_cv = None
-
-
     self.__trained_models = []
 
 
@@ -132,8 +129,6 @@ class BinaryClassificationJob( Logger ):
   #
   def run( self ):
 
-
-
     for isort, sort in enumerate( self.sorts ):
 
       # get the current kfold and train, val sets
@@ -165,7 +160,6 @@ class BinaryClassificationJob( Logger ):
           self.__context.setHandler( "features" , features             )
 
 
-          print(model)
           # get the model "ptr" for this sort, init and model index
           if self.__model_generator:
             MSG_INFO( self, "Apply model generator..." )

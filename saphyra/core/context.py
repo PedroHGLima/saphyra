@@ -1,8 +1,8 @@
 
 __all__ = ["Context"]
 
-from Gaugi.messenger  import Logger
-from Gaugi.messenger.macros import *
+from Gaugi import Logger
+from Gaugi.macros import *
 import collections
 
 class Context(Logger):

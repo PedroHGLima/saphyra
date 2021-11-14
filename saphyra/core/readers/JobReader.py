@@ -1,15 +1,14 @@
 
+
 __all__ = ['JobReader']
 
-
-from Gaugi import Logger, NotSet
-
+from Gaugi import Logger
 
 class JobReader( Logger ):
 
   def __init__( self, **kw ):
     Logger.__init__(self, kw)
-    self._obj = NotSet
+    self._obj = None
 
   def load( self, ofile ):
 
@@ -20,7 +19,7 @@ class JobReader( Logger ):
     # the current file version
     if version == 1:
       from saphyra import Job_v1
-      self._obj = Job_v1.fromRawObj( raw )
+      self._obj = Job_v1().fromRawObj(raw)
     else:
       # error because the file does not exist
       self._logger.fatal( 'File version (%d) not supported in (%s)', version, ofile)
@@ -35,7 +34,5 @@ class JobReader( Logger ):
 
   def get_object(self):
     return self._obj
-
-
 
 

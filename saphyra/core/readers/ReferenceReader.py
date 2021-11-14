@@ -2,14 +2,14 @@
 __all__ = ['ReferenceReader']
 
 
-from Gaugi import Logger, NotSet
+from Gaugi import Logger
 
 
 class ReferenceReader( Logger ):
 
   def __init__( self, **kw ):
     Logger.__init__(self, kw)
-    self._obj = NotSet
+    self._obj = None
 
   def load( self, ofile ):
 
@@ -21,7 +21,8 @@ class ReferenceReader( Logger ):
     # the current file version
     if version == 1:
       from saphyra import Reference_v1
-      self._obj = Reference_v1.fromRawObj( raw )
+      self._obj = Reference_v1()
+      self._obj.fromRawObj( raw )
     else:
       # error because the file does not exist
       self._logger.fatal( 'File version (%d) not supported in (%s)', version, ofile)
@@ -36,6 +37,9 @@ class ReferenceReader( Logger ):
 
   def get_object(self):
     return self._obj
+
+
+
 
 
 

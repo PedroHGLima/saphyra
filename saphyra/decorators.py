@@ -3,7 +3,7 @@ __all__ = ["Summary", "Reference", "Relevance"]
 
 
 from Gaugi import Logger, StatusCode
-from Gaugi.messenger.macros import *
+from Gaugi.macros import *
 
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score

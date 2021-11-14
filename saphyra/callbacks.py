@@ -2,9 +2,8 @@
 __all__ = []
 
 from tensorflow.keras.callbacks import Callback
-from Gaugi.messenger.macros import *
-from Gaugi.messenger import Logger
-from Gaugi.gtypes import NotSet
+from Gaugi.macros import *
+from Gaugi import Logger
 from sklearn.metrics import roc_curve
 import numpy as np
 
@@ -19,9 +18,9 @@ class sp(Callback, Logger):
     self.__ipatience = 0
     self.__best_sp = 0.0
     self.__save_the_best = save_the_best
-    self.__best_weights = NotSet
+    self.__best_weights = None
     self.__best_epoch = 0
-    self._validation_data = NotSet
+    self._validation_data = None
 
   def set_validation_data( self, v ):
     self._validation_data = v

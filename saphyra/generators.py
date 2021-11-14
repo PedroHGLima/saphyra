@@ -3,7 +3,7 @@ __all__ = ['PatternGenerator']
 
 
 from Gaugi import Logger
-from Gaugi.messenger.macros import *
+from Gaugi.macros import *
 
 #
 # Pattern generator used to read the data inline during the training phase
