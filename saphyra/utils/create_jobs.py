@@ -55,20 +55,20 @@ class create_configuration_jobs( Logger ):
 
     time_stamp = self.time_stamp()    
     # creating the job mechanism file first
-    mkdir_p(outputFolder)
+    mkdir_p(self.outputFolder)
 
-    if type(models) is not list:
-      models = [models]
+    if type(self.models) is not list:
+      self.models = [self.models]
     
     modelJobsWindowList = create_iter(lambda i, sorts: list(range(i, i+sorts)), 
-                                      nModelsPerJob,
-                                      len(models))
+                                      self.nModelsPerJob,
+                                      len(self.models))
     sortJobsWindowList  = create_iter(lambda i, sorts: list(range(i, i+sorts)), 
-                                      nSortsPerJob,
-                                      sortBounds)
+                                      self.nSortsPerJob,
+                                      self.sortBounds)
     initJobsWindowList  = create_iter(lambda i, sorts: list(range(i, i+sorts)), 
-                                      nInitsPerJob, 
-                                      nInits)
+                                      self.nInitsPerJob, 
+                                      self.nInits)
 
     nJobs = 0 
     for (model_idx_list, sort_list, init_list) in product(modelJobsWindowList,
@@ -85,13 +85,13 @@ class create_configuration_jobs( Logger ):
       job.setId( nJobs )
       job.setSorts(sort_list)
       job.setInits(init_list)
-      job.setModels([models[idx] for idx in model_idx_list],  model_idx_list )
+      job.setModels([self.models[idx] for idx in model_idx_list],  model_idx_list )
       # save config file
       model_str = 'ml%i.mu%i' %(model_idx_list[0], model_idx_list[-1])
       sort_str  = 'sl%i.su%i' %(sort_list[0], sort_list[-1])
       init_str  = 'il%i.iu%i' %(init_list[0], init_list[-1])
-      job.save( outputFolder+'/' + ('job_config.ID_%s.%s_%s_%s.%s') %
-              ( str(nJobs).zfill(4), model_str, sort_str, init_str, time_stamp) )
+      job.save( self.outputFolder+'/' + ('job_config.ID_%s.%s_%s_%s') %
+              ( str(nJobs).zfill(4), model_str, sort_str, init_str) )
       nJobs+=1
 
     MSG_INFO( self, "A total of %d jobs...", nJobs)

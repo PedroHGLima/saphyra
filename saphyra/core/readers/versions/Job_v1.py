@@ -96,12 +96,12 @@ class Job_v1( object ):
     self.__id = d['id']
     self.__sorts = d['sorts']
     self.__inits = d['inits']
-    self.__modeld = d['models']
+    self.__models = d['models']
     return self
 
   def save(self, fname):
     d = self.toRawObj()
-    save( d, fname, compress=True)
+    save( d, fname)
 
 
  

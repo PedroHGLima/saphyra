@@ -67,7 +67,7 @@ class TunedData_v1( object ):
 
   def save(self, ofile):
     d = self.toRawObj()
-    save( d, ofile, compress=True)
+    save( d, ofile)
 
 
 

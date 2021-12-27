@@ -10,11 +10,11 @@ from tensorflow.keras import backend as K
 from sklearn.utils.class_weight import compute_class_weight
 
 from datetime import datetime
-from copy import deepcopy
+from copy import deepcopy, copy
 import numpy as np
 import time
 import os
-
+import tensorflow as tf
 def lock_as_completed_job(output):
   with open(output+'/.complete','w') as f:
     f.write('complete')
@@ -47,21 +47,23 @@ class BinaryClassificationJob( Logger ):
     declareProperty( self, kw, 'inits'          , 1                     )
     declareProperty( self, kw, 'decorators'     , []                    )
     declareProperty( self, kw, 'plots'          , []                    )
-    declareProperty( self, kw, 'job_auto_config', None                  )
-    declareProperty( self, kw, 'model_generator', None      , private=True )
-    declareProperty( self, kw, 'verbose'        , True      , private=True )
-    declareProperty( self, kw, 'class_weight'   , False     , private=True )
-    declareProperty( self, kw, 'save_history'   , True      , private=True )
+    declareProperty( self, kw, 'job'            , None                  )
+    declareProperty( self, kw, 'model_generator', None                  )
+    declareProperty( self, kw, 'verbose'        , True                  )
+    declareProperty( self, kw, 'class_weight'   , True                  )
+    declareProperty( self, kw, 'save_history'   , True                  )
+
 
 
     # read the job configuration from file
-    if job_auto_config:
-      if type(job_auto_config) is str:
-        MSG_INFO( self, 'Reading job configuration from: %s', job_auto_config )
+    MSG_INFO(self, 'Setup job...')
+    if self.job:
+      if type(self.job) is str:
+        MSG_INFO( self, 'Reading job configuration from: %s', self.job )
         from saphyra.core.readers import JobReader
-        job = JobReader().load( job_auto_config )
+        job = JobReader().load( self.job )
       else:
-        job = job_auto_config
+        job = self.job
       # retrive sort/init lists from file
       self.sorts = job.getSorts()
       self.inits = job.getInits()
@@ -72,16 +74,20 @@ class BinaryClassificationJob( Logger ):
     # get model and tag from model file or lists
     declareProperty( self, kw, 'models', None )
 
-    if models:
-      self.__models = models
-      self.__id_models = [id for id in range(len(models))]
+    MSG_INFO(self, 'Setup models...')
+
+    if self.models:
+      self.__models = self.models
+      self.__id_models = [id for id in range(len(self.models))]
       self.__jobId = 0
 
 
 
-    declareProperty( self, kw, 'outputFile' , None, private=True )
+    declareProperty( self, kw, 'outputFile' , None )
 
-    if self.__outputfile:
+    MSG_INFO(self, 'Setup output file...')
+
+    if self.outputFile:
       from saphyra.core.readers.versions import TunedData_v1
       self.__tunedData = TunedData_v1()
 
@@ -129,6 +135,9 @@ class BinaryClassificationJob( Logger ):
   #
   def run( self ):
 
+    MSG_INFO(self, 'Running....')
+    tf.config.run_functions_eagerly(False)
+
     for isort, sort in enumerate( self.sorts ):
 
       # get the current kfold and train, val sets
@@ -161,14 +170,15 @@ class BinaryClassificationJob( Logger ):
 
 
           # get the model "ptr" for this sort, init and model index
-          if self.__model_generator:
+          if self.model_generator:
             MSG_INFO( self, "Apply model generator..." )
-            model_for_this_init = self.__model_generator( sort )
+            model_for_this_init = self.model_generator( sort )
           else: 
             model_for_this_init = clone_model(model) # get only the model
 
 
           try:
+
             model_for_this_init.compile( self.optimizer,
                       loss = self.loss,
                       # protection for functions or classes with internal variables
@@ -186,7 +196,7 @@ class BinaryClassificationJob( Logger ):
           MSG_INFO( self, "Validation Samples :  (%d, %d)", len(y_val[y_val==1]),len(y_val[y_val!=1]))
 
 
-          callbacks = deepcopy(self.callbacks)
+          callbacks = copy(self.callbacks)
           for callback in callbacks:
             if hasattr(callback, 'set_validation_data'):
               callback.set_validation_data( (x_val,y_val) )
@@ -194,12 +204,6 @@ class BinaryClassificationJob( Logger ):
 
           start = datetime.now()
 
-          if self.__class_weight:
-            classes = np.unique(y_train)
-            weights = compute_class_weight('balanced',classes,y_train)
-            class_weights = {cl : weights[idx] for idx, cl in enumerate(classes)}
-          else:
-            class_weights = None
 
          
           # Hacn: used by orchestra to set this job as local test
@@ -209,16 +213,29 @@ class BinaryClassificationJob( Logger ):
             return StatusCode.SUCCESS
 
 
+          if self.class_weight:
+            classes = np.unique(y_train).tolist()
+            # [-1,1] or [0,1]
+            weights = compute_class_weight('balanced',classes,y_train)
+            class_weights = {cl : weights[idx] for idx, cl in enumerate(classes)}
+            sample_weight = np.ones_like(y_train, dtype=np.float32)
+            sample_weight[y_train==1] = weights[1]
+            sample_weight[y_train!=1] = weights[0] 
+            print(class_weights)
+          else:
+            sample_weight = np.ones_like(y_train)
+
+
           # Training
           history = model_for_this_init.fit(x_train, y_train,
                               epochs          = self.epochs,
                               batch_size      = batch_size,
-                              verbose         = self.__verbose,
+                              verbose         = self.verbose,
                               validation_data = (x_val,y_val),
                               # copy protection to avoid the interruption or interference
                               # in the next training (e.g: early stop)
+                              sample_weight   = sample_weight,
                               callbacks       = callbacks,
-                              class_weight    = class_weights,
                               shuffle         = True).history
 
           end = datetime.now()
@@ -232,7 +249,7 @@ class BinaryClassificationJob( Logger ):
           self.__context.setHandler("time" , end-start)
 
 
-          if not self.__save_history:
+          if not self.save_history:
             # overwrite to slim version. This is used to reduce the output size
             history = {}
 
@@ -250,7 +267,7 @@ class BinaryClassificationJob( Logger ):
 
 
           # add the tuned parameters to the output file
-          if self.__outputfile:
+          if self.outputFile:
             self.__tunedData.attach_ctx( self.__context )
 
 
@@ -269,8 +286,8 @@ class BinaryClassificationJob( Logger ):
     # End of training
     try:
       # prepare to save the tuned data
-      if self.__outputfile:
-        self.__tunedData.save( self.__outputfile )
+      if self.outputFile:
+        self.__tunedData.save( self.outputFile )
     except Exception as e:
       MSG_FATAL( self, "Its not possible to save the tuned data: %s" , e )
 

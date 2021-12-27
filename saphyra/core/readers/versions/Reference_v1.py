@@ -14,8 +14,8 @@ class Reference_v1( object ):
 
   def __init__( self ):
 
-    self.__sgnRef = collections.OrderedDict()
-    self.__bkgRef = collections.OrderedDict()
+    self.__sgnRef = {}
+    self.__bkgRef = {}
     self.__etBins = None
     self.__etaBins = None
     self.__etBinIdx = None
@@ -76,18 +76,19 @@ class Reference_v1( object ):
           }
 
   def fromRawObj( self, d):
-    self.__bkgRef = d['bkgRef']
-    self.__sgnRef = d['sgnRef']
+    self.__bkgRef = d['bkgRef'].tolist()# NOTE: This is a hack
+    self.__sgnRef = d['sgnRef'].tolist()# NOTE: This is a hack
     self.__etBins = d['etBins']
     self.__etaBins= d['etaBins']
     self.__etaBinIdx = d['etaBinIdx']
     self.__etBinIdx = d['etBinIdx']
+    self.__version  = d['__version']
     return self
 
 
   def save(self, ofile):
     d = self.toRawObj()
-    save( d, ofile, compress=True)
+    save( d, ofile)
 
 
 

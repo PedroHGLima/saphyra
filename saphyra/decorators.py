@@ -46,9 +46,9 @@ class Summary( Logger ):
     # Get the number of events for each set (train/val). Can be used to approx the number of
     # passed events in pd/fa analysis. Use this to integrate values (approx)
     sgn_total = len( y_train[y_train==1] )
-    bkg_total = len( y_train[y_train==0] )
+    bkg_total = len( y_train[y_train!=1] )
     sgn_total_val = len( y_val[y_val==1] )
-    bkg_total_val = len( y_val[y_val==0] )
+    bkg_total_val = len( y_val[y_val!=1] )
 
 
     MSG_INFO( self, "Starting the train summary..." )
@@ -63,7 +63,7 @@ class Summary( Logger ):
     d['rocs'] = {}
     d['hists'] = {}
     m_step = 1e-2
-    m_bins = np.arange(0, 1.+m_step, step=m_step)
+    m_bins = np.arange(min(y_train), max(y_train)+m_step, step=m_step)
     # No threshold is needed
     d['auc'] = roc_auc_score(y_train, y_pred)
     d['auc_val'] = roc_auc_score(y_val, y_pred_val)
