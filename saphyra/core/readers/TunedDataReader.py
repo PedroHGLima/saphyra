@@ -17,8 +17,8 @@ class TunedDataReader( Logger ):
   def load( self, fList ):
 
 
-    fList = csvStr2List(fList)
-    fList = expandFolders(fList)
+    fList = expand_folders(fList)
+    fList = [f for f in fList if '.npz' in f]
     from saphyra import TunedData_v1
     self._obj = TunedData_v1()
     for inputFile in progressbar(fList, "Reading tuned data collection..." ):

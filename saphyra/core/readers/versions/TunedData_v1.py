@@ -63,7 +63,7 @@ class TunedData_v1( object ):
 
   def fromRawObj( self, d):
     self.__tunedData = d['tunedData']
-    return self
+    return self 
 
   def save(self, ofile):
     d = self.toRawObj()
