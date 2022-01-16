@@ -51,7 +51,7 @@ class Reprocess( Logger ):
       history = tuned['history']
 
       # get the current kfold and train, val sets
-      x_train, x_val, y_train, y_val, index_from_cv = self.pattern_g( generator, crossval, sort )
+      x_train, x_val, y_train, y_val, avgmu_train, avgmu_val, index_from_cv = self.pattern_g( generator, crossval, sort )
 
       # recover keras model
       model = model_from_json( json.dumps(tuned['sequence'], separators=(',', ':')) )#, custom_objects={'RpLayer':RpLayer} )
@@ -59,8 +59,8 @@ class Reprocess( Logger ):
 
 
       # Should not be store
-      context.setHandler( "valData" , (x_val, y_val)       )
-      context.setHandler( "trnData" , (x_train, y_train)   )
+      context.setHandler( "valData" , (x_val, y_val, avgmu_val)         )
+      context.setHandler( "trnData" , (x_train, y_train, avgmu_train)   )
       context.setHandler( "index"   , index_from_cv        )
       context.setHandler( "crossval", crossval             )
 

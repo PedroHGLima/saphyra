@@ -141,7 +141,7 @@ class BinaryClassificationJob( Logger ):
     for isort, sort in enumerate( self.sorts ):
 
       # get the current kfold and train, val sets
-      x_train, x_val, y_train, y_val, self._index_from_cv, features = self.pattern_g( self.__pattern_generator, self.crossval, sort )
+      x_train, x_val, y_train, y_val, avgmu_train, avgmu_val, self._index_from_cv = self.pattern_g( self.__pattern_generator, self.crossval, sort )
 
 
       if ( len(np.unique(y_train))!= 2 ):
@@ -164,8 +164,8 @@ class BinaryClassificationJob( Logger ):
           self.__context.setHandler( "jobId"    , self.__jobId         )
           self.__context.setHandler( "crossval" , self.crossval        )
           self.__context.setHandler( "index"    , self.__index_from_cv )
-          self.__context.setHandler( "valData"  , (x_val, y_val)       )
-          self.__context.setHandler( "trnData"  , (x_train, y_train)   )
+          self.__context.setHandler( "valData"  , (x_val  , y_val  , avgmu_val  )   )
+          self.__context.setHandler( "trnData"  , (x_train, y_train, avgmu_train)   )
           self.__context.setHandler( "features" , features             )
 
 
