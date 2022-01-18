@@ -606,14 +606,14 @@ class LinearFit( Logger ):
         th1_num.SetBinContent(by+1,num)
         numerator+=num
         denominator+=xproj.Integral(-1, xproj.GetNbinsX()+1)
-    return numerator/denominator, numerator, denominator
+    return numerator/denominator if denominator!=0 else 0, numerator, denominator
 
 
   def calculate_num_and_den_from_df(self, df,  slope, offset) :
     df['dec'] = np.greater(df.output.values, slope*df.avgmu.values + offset)
     den = df.loc[(df.dec==True)].shape[0]
     num = df.shape[0]
-    return den/num, den, num
+    return den/num if den!=0 else 0, den, num
 
 
   #
