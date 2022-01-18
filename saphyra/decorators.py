@@ -390,6 +390,12 @@ class LinearFit( Logger ):
     # prepare all histograms
     xmin = int(np.percentile(df_train['output'].values , self.xmin_percentage)) if not self.xmin else self.xmin
     xmax = int(np.percentile(df_train['output'].values , self.xmax_percentage)) if not self.xmax else self.xmax
+    
+    if xmin == xmax:
+      print('xmin == xmax -> \n make xmin = xmax -1 ')
+      xmin = xmax - 1
+
+    
     #print ('xmin = %1.2f, xmax = %1.2f'%(xmin,xmax))
     xbins = int((xmax-xmin)/self.xbin_size)
     ybins = int((self.ymax-self.ymin)/self.ybin_size)
