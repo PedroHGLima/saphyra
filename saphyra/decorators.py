@@ -429,8 +429,15 @@ class LinearFit( Logger ):
       
       d = {}
 
-      pd_ref = ref['pd'][0]; fa_ref = ref['fa'][0]; sp_ref = ref['sp']
+      pd_ref = ref['pd'][0]
+      pd_ref_passed = ref['pd'][1]
+      pd_ref_total = ref['pd'][2]
+      
+      fa_ref = ref['fa'][0]
+      fa_ref_passed = ref['fa'][1]
+      fa_ref_total = ref['fa'][2]
 
+      sp_ref = ref['sp']
 
       #
       # Train events (calculate slope and offset)
@@ -488,8 +495,8 @@ class LinearFit( Logger ):
       sp_op  = np.sqrt(  np.sqrt(pd_op*(1-fa_op)) * (0.5*(pd_op+(1-fa_op)))  )
 
       d = {
-            'pd_ref'  :   pd_ref,
-            'fa_ref'  :   fa_ref,
+            'pd_ref'  :   (pd_ref, pd_ref_passed, pd_ref_total),
+            'fa_ref'  :   (fa_ref, fa_ref_passed, fa_ref_total),
             'sp_ref'  :   sp_ref,
             'pd'      :   (pd_train, pd_train_passed, pd_train_total),
             'fa'      :   (fa_train, fa_train_passed, fa_train_total),
