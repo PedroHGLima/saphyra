@@ -166,7 +166,7 @@ class BinaryClassificationJob( Logger ):
           self.__context.setHandler( "index"    , self.__index_from_cv )
           self.__context.setHandler( "valData"  , (x_val  , y_val  , avgmu_val  )   )
           self.__context.setHandler( "trnData"  , (x_train, y_train, avgmu_train)   )
-          self.__context.setHandler( "features" , features             )
+          #self.__context.setHandler( "features" , features             )
 
 
           # get the model "ptr" for this sort, init and model index
